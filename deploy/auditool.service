@@ -1,0 +1,14 @@
+[Unit]
+Description=Sales Brain — Auditool FastAPI app
+After=network.target
+
+[Service]
+User=www-data
+WorkingDirectory=/var/www/salesauditool
+EnvironmentFile=/var/www/salesauditool/.env
+ExecStart=/usr/bin/python3 -m uvicorn main:app --host 127.0.0.1 --port 8001
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
