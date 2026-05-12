@@ -346,7 +346,7 @@
 
     async function copyShareLink() {
       if (!currentReportId) return;
-      const url = `${window.location.origin}/report/${currentReportId}`;
+      const url = `${window.location.origin}/projects/salesauditool/report/${currentReportId}`;
       await navigator.clipboard.writeText(url);
       const btn = document.getElementById("shareBtn");
       btn.textContent = "Copied!";
@@ -359,7 +359,7 @@
 
     // If visiting a /report/:id URL directly, load and render it
     async function loadSharedReport() {
-      const match = window.location.pathname.match(/^\/report\/([a-f0-9-]{36})$/);
+      const match = window.location.pathname.match(/^\/projects\/salesauditool\/report\/([a-f0-9-]{36})$/);
       if (!match) return;
 
       const reportId = match[1];
