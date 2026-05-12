@@ -6,14 +6,17 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from anthropic import Anthropic
+from openai import OpenAI
 from dotenv import load_dotenv
 from prompt import SYSTEM_PROMPT
 
 load_dotenv()
 
 DB_PATH = "reports.db"
-client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+client = OpenAI(
+    base_url="https://integrate.api.nvidia.com/v1",
+    api_key=os.getenv("NVIDIA_API_KEY"),
+)
 
 
 @asynccontextmanager
@@ -62,14 +65,16 @@ async def audit(req: AuditRequest):
     context_line = ", ".join(context_parts) if context_parts else "Not provided"
     user_message = f"Context: {context_line}\n\nTranscript:\n{req.transcript.strip()}"
 
-    response = client.messages.create(
-        model="claude-sonnet-4-6",
+    response = client.chat.completions.create(
+        model="nvidia/llama-3.1-nemotron-70b-instruct",
         max_tokens=4096,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_message}],
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_message},
+        ],
     )
 
-    report_markdown = response.content[0].text
+    report_markdown = response.choices[0].message.content
     report_id = str(uuid.uuid4())
 
     async with aiosqlite.connect(DB_PATH) as db:
